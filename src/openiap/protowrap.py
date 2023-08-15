@@ -215,7 +215,7 @@ class protowrap():
             yield protowrap.seed
             protowrap.seed += 1
     @staticmethod
-    async def DownloadFile(client, Id:str=None, Filename:str=None):
+    async def DownloadFile(client, Id:str=None, Filename:str=None, OutPath: str=None):
         request = base_pb2.Envelope(command="download")
         request.data.Pack(base_pb2.DownloadRequest(filename=Filename,id=Id))
         rid = str(next(protowrap.uniqueid()))
@@ -223,7 +223,11 @@ class protowrap():
         protowrap.SetStream(rid)
         result:base_pb2.DownloadResponse = await protowrap.RPC(client, request, rid)
         if(result.filename != None and result.filename != ""):
-            with open(result.filename, "wb") as out_file:
+            if OutPath == None:
+                Path = result.filename
+            else:
+                Path = OutPath + "/" + result.filename
+            with open(Path, "wb") as out_file:
                 out_file.write(protowrap.streams[rid])
         protowrap.streams.pop(rid, None)
         return result
