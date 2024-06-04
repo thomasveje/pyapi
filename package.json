@@ -1,11 +1,12 @@
 {
   "name": "pyapi",
-  "version": "0.0.33",
+  "version": "0.0.36",
   "description": "",
   "main": "index.js",
   "scripts": {
     "updateproto": "npm uninstall @openiap/proto && npm --save-dev i openiap/proto",
-    "generate": "mkdir -p src/proto && python -m grpc_tools.protoc -I./proto --python_out=./src/proto --pyi_out=./src/proto --grpc_python_out=./src/proto proto/base.proto proto/ace.proto proto/querys.proto proto/queues.proto proto/watch.proto proto/workitems.proto"
+    "generate": "mkdir -p src/proto && python -m grpc_tools.protoc -I./proto --python_out=./src/proto --pyi_out=./src/proto --grpc_python_out=./src/proto proto/base.proto proto/ace.proto proto/querys.proto proto/queues.proto proto/watch.proto proto/workitems.proto",
+    "docs": "pdoc --force --output-dir docs openiap"
   },
   "repository": {
     "type": "git",

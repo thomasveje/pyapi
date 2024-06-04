@@ -32,6 +32,10 @@ class protowrap():
                     loop.run_until_complete(protowrap.__ws_connect_and_listen(client))
                 finally:
                     loop.close()
+            except websockets.exceptions.ConnectionClosedOK as e:
+                # print(repr(e))
+                # traceback.print_tb(e.__traceback__)
+                pass
             except Exception as e:
                 if(client.connected == True):
                     client.connected = False
@@ -72,8 +76,10 @@ class protowrap():
             try:
                 # msg = await asyncio.shield(websocket.recv())
                 msg = await asyncio.wait_for(websocket.recv(), timeout=None)
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError: # ConnectionClosedOK
                 print("Timed out waiting for message from server")
+                continue
+            except websockets.exceptions.ConnectionClosedOK as e:
                 continue
             except Exception as e:
                 print(repr(e))
@@ -108,6 +114,10 @@ class protowrap():
                 msg.seq = client.seq
                 bytes = msg.SerializeToString()
                 # print(f"{protowrap.timestamp()} Sending {msg.seq}:{msg.command} of {len(bytes)} bytes")
+                if(websocket.open == False): # wtf ? how can it be closed here?
+                    print(f"Not opened, resubmitting message {msg.seq}:{msg.command} of {len(bytes)} bytes")
+                    client.grpcqueue.put(msg)
+                    break
                 asyncio.run(websocket.send(len(bytes).to_bytes(4, 'little', signed=False)))
                 asyncio.run(websocket.send(bytes))
                 client.seq += 1
